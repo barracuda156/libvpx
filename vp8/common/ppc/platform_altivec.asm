@@ -1,13 +1,10 @@
-;
 ;  Copyright (c) 2010 The WebM project authors. All Rights Reserved.
 ;
 ;  Use of this source code is governed by a BSD-style license
 ;  that can be found in the LICENSE file in the root of the source
 ;  tree. An additional intellectual property rights grant can be found
-;  in the file PATENTS.  All contributing project authors may
+;  in the file PATENTS. All contributing project authors may
 ;  be found in the AUTHORS file in the root of the source tree.
-;
-
 
     .globl save_platform_context
     .globl restore_platform_context
@@ -22,7 +19,7 @@
     addi    \P, \P, 16
 .endm
 
-;# r3 context_ptr
+; r3 context_ptr
     .align 2
 save_platform_contex:
     W v20, r3
@@ -40,7 +37,7 @@ save_platform_contex:
 
     blr
 
-;# r3 context_ptr
+; r3 context_ptr
     .align 2
 restore_platform_context:
     R v20, r3

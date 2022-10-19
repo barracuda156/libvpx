@@ -1,13 +1,10 @@
-;
 ;  Copyright (c) 2010 The WebM project authors. All Rights Reserved.
 ;
 ;  Use of this source code is governed by a BSD-style license
 ;  that can be found in the LICENSE file in the root of the source
 ;  tree. An additional intellectual property rights grant can be found
-;  in the file PATENTS.  All contributing project authors may
+;  in the file PATENTS. All contributing project authors may
 ;  be found in the AUTHORS file in the root of the source tree.
-;
-
 
     .globl vp8_get8x8var_ppc
     .globl vp8_get16x16var_ppc
@@ -19,7 +16,7 @@
     .globl vp8_variance4x4_ppc
 
 .macro load_aligned_16 V R O
-    lvsl    v3,  0, \R          ;# permutate value for alignment
+    lvsl    v3,  0, \R          ; permutate value for alignment
 
     lvx     v1,  0, \R
     lvx     v2, \O, \R
@@ -28,29 +25,29 @@
 .endm
 
 .macro prologue
-    mfspr   r11, 256            ;# get old VRSAVE
+    mfspr   r11, 256            ; get old VRSAVE
     oris    r12, r11, 0xffc0
-    mtspr   256, r12            ;# set VRSAVE
+    mtspr   256, r12            ; set VRSAVE
 
-    stwu    r1, -32(r1)         ;# create space on the stack
+    stwu    r1, -32(r1)         ; create space on the stack
 
-    li      r10, 16             ;# load offset and loop counter
+    li      r10, 16             ; load offset and loop counter
 
-    vspltisw v7, 0              ;# zero for merging
-    vspltisw v8, 0              ;# zero out total to start
-    vspltisw v9, 0              ;# zero out total for dif^2
+    vspltisw v7, 0              ; zero for merging
+    vspltisw v8, 0              ; zero out total to start
+    vspltisw v9, 0              ; zero out total for dif^2
 .endm
 
 .macro epilogue
-    addi    r1, r1, 32          ;# recover stack
+    addi    r1, r1, 32          ; recover stack
 
-    mtspr   256, r11            ;# reset old VRSAVE
+    mtspr   256, r11            ; reset old VRSAVE
 .endm
 
 .macro compute_sum_sse
-    ;# Compute sum first.  Unpack to so signed subract
-    ;#  can be used.  Only have a half word signed
-    ;#  subract.  Do high, then low.
+    ; Compute sum first. Unpack to so signed subract
+    ; can be used. Only have a half word signed
+    ; subract. Do high, then low.
     vmrghb  v2, v7, v4
     vmrghb  v3, v7, v5
     vsubshs v2, v2, v3
@@ -61,7 +58,7 @@
     vsubshs v2, v2, v3
     vsum4shs v8, v2, v8
 
-    ;# Now compute sse.
+    ; Now compute sse.
     vsububs v2, v4, v5
     vsububs v3, v5, v4
     vor     v2, v2, v3
@@ -71,11 +68,11 @@
 
 .macro variance_16 DS loop_label store_sum
 \loop_label:
-    ;# only one of the inputs should need to be aligned.
+    ; only one of the inputs should need to be aligned.
     load_aligned_16 v4, r3, r10
     load_aligned_16 v5, r5, r10
 
-    ;# move onto the next line
+    ; move onto the next line
     add     r3, r3, r4
     add     r5, r5, r6
 
@@ -93,30 +90,30 @@
     lwz     r4, 12(r1)
 
 .if \store_sum
-    stw     r3, 0(r8)           ;# sum
+    stw     r3, 0(r8)           ; sum
 .endif
-    stw     r4, 0(r7)           ;# sse
+    stw     r4, 0(r7)           ; sse
 
-    mullw   r3, r3, r3          ;# sum*sum
-    srlwi   r3, r3, \DS         ;# (sum*sum) >> DS
-    subf    r3, r3, r4          ;# sse - ((sum*sum) >> DS)
+    mullw   r3, r3, r3          ; sum*sum
+    srlwi   r3, r3, \DS         ; (sum*sum) >> DS
+    subf    r3, r3, r4          ; sse - ((sum*sum) >> DS)
 .endm
 
 .macro variance_8 DS loop_label store_sum
 \loop_label:
-    ;# only one of the inputs should need to be aligned.
+    ; only one of the inputs should need to be aligned.
     load_aligned_16 v4, r3, r10
     load_aligned_16 v5, r5, r10
 
-    ;# move onto the next line
+    ; move onto the next line
     add     r3, r3, r4
     add     r5, r5, r6
 
-    ;# only one of the inputs should need to be aligned.
+    ; only one of the inputs should need to be aligned.
     load_aligned_16 v6, r3, r10
     load_aligned_16 v0, r5, r10
 
-    ;# move onto the next line
+    ; move onto the next line
     add     r3, r3, r4
     add     r5, r5, r6
 
@@ -137,24 +134,24 @@
     lwz     r4, 12(r1)
 
 .if \store_sum
-    stw     r3, 0(r8)           ;# sum
+    stw     r3, 0(r8)           ; sum
 .endif
-    stw     r4, 0(r7)           ;# sse
+    stw     r4, 0(r7)           ; sse
 
-    mullw   r3, r3, r3          ;# sum*sum
-    srlwi   r3, r3, \DS         ;# (sum*sum) >> 8
-    subf    r3, r3, r4          ;# sse - ((sum*sum) >> 8)
+    mullw   r3, r3, r3          ; sum*sum
+    srlwi   r3, r3, \DS         ; (sum*sum) >> 8
+    subf    r3, r3, r4          ; sse - ((sum*sum) >> 8)
 .endm
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *SSE
-;# r8 int *Sum
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *SSE
+; r8 int *Sum
+
+; r3 return value
 vp8_get8x8var_ppc:
 
     prologue
@@ -169,14 +166,14 @@ vp8_get8x8var_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *SSE
-;# r8 int *Sum
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *SSE
+; r8 int *Sum
+
+; r3 return value
 vp8_get16x16var_ppc:
 
     prologue
@@ -190,28 +187,28 @@ vp8_get16x16var_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *sse
-;#
-;# r 3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *sse
+
+; r 3 return value
 vp8_mse16x16_ppc:
     prologue
 
     mtctr   r10
 
 mse16x16_loop:
-    ;# only one of the inputs should need to be aligned.
+    ; only one of the inputs should need to be aligned.
     load_aligned_16 v4, r3, r10
     load_aligned_16 v5, r5, r10
 
-    ;# move onto the next line
+    ; move onto the next line
     add     r3, r3, r4
     add     r5, r5, r6
 
-    ;# Now compute sse.
+    ; Now compute sse.
     vsububs v2, v4, v5
     vsububs v3, v5, v4
     vor     v2, v2, v3
@@ -228,20 +225,20 @@ mse16x16_loop:
     stvx    v9, 0, r1
     lwz     r3, 12(r1)
 
-    stw     r3, 0(r7)           ;# sse
+    stw     r3, 0(r7)           ; sse
 
     epilogue
 
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *sse
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *sse
+
+; r3 return value
 vp8_variance16x16_ppc:
 
     prologue
@@ -255,13 +252,13 @@ vp8_variance16x16_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *sse
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *sse
+
+; r3 return value
 vp8_variance16x8_ppc:
 
     prologue
@@ -276,13 +273,13 @@ vp8_variance16x8_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *sse
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *sse
+
+; r3 return value
 vp8_variance8x16_ppc:
 
     prologue
@@ -297,13 +294,13 @@ vp8_variance8x16_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *sse
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *sse
+
+; r3 return value
 vp8_variance8x8_ppc:
 
     prologue
@@ -336,13 +333,13 @@ vp8_variance8x8_ppc:
 .endm
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  source_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  recon_stride
-;# r7 unsigned int *sse
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  source_stride
+; r5 unsigned char *ref_ptr
+; r6 int  recon_stride
+; r7 unsigned int *sse
+
+; r3 return value
 vp8_variance4x4_ppc:
 
     prologue
@@ -364,11 +361,11 @@ vp8_variance4x4_ppc:
     stvx    v9, 0, r1
     lwz     r4, 12(r1)
 
-    stw     r4, 0(r7)           ;# sse
+    stw     r4, 0(r7)           ; sse
 
-    mullw   r3, r3, r3          ;# sum*sum
-    srlwi   r3, r3, 4           ;# (sum*sum) >> 4
-    subf    r3, r3, r4          ;# sse - ((sum*sum) >> 4)
+    mullw   r3, r3, r3          ; sum*sum
+    srlwi   r3, r3, 4           ; (sum*sum) >> 4
+    subf    r3, r3, r4          ; sse - ((sum*sum) >> 4)
 
     epilogue
 

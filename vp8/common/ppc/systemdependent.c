@@ -124,10 +124,10 @@ void vp8_clear_c(void)
 void vp8_machine_specific_config(void)
 {
     // Pure C:
-    vp8_clear_system_state                = vp8_clear_c;
+    vp8_clear_system_state               = vp8_clear_c;
     vp8_recon_b                          = vp8_recon_b_c;
-    vp8_recon4b                         = vp8_recon4b_c;
-    vp8_recon2b                         = vp8_recon2b_c;
+    vp8_recon4b                          = vp8_recon4b_c;
+    vp8_recon2b                          = vp8_recon2b_c;
 
     vp8_bilinear_predict16x16            = bilinear_predict16x16_ppc;
     vp8_bilinear_predict8x8              = bilinear_predict8x8_ppc;
@@ -141,7 +141,7 @@ void vp8_machine_specific_config(void)
 
     vp8_short_idct4x4_1                  = vp8_short_idct4x4llm_1_c;
     vp8_short_idct4x4                    = short_idct4x4llm_ppc;
-    vp8_dc_only_idct                      = vp8_dc_only_idct_c;
+    vp8_dc_only_idct                     = vp8_dc_only_idct_c;
 
     vp8_lf_mbvfull                       = loop_filter_mbv_ppc;
     vp8_lf_bvfull                        = loop_filter_bv_ppc;
@@ -154,9 +154,9 @@ void vp8_machine_specific_config(void)
     vp8_lf_bhsimple                      = loop_filter_bhs_ppc;
 
     vp8_post_proc_down_and_across_mb_row = vp8_post_proc_down_and_across_mb_row_c;
-    vp8_mbpost_proc_down                  = vp8_mbpost_proc_down_c;
-    vp8_mbpost_proc_across_ip              = vp8_mbpost_proc_across_ip_c;
-    vp8_plane_add_noise                   = vp8_plane_add_noise_c;
+    vp8_mbpost_proc_down                 = vp8_mbpost_proc_down_c;
+    vp8_mbpost_proc_across_ip            = vp8_mbpost_proc_across_ip_c;
+    vp8_plane_add_noise                  = vp8_plane_add_noise_c;
 
     vp8_copy_mem16x16                    = copy_mem16x16_ppc;
     vp8_copy_mem8x8                      = vp8_copy_mem8x8_c;

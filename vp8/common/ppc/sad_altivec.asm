@@ -1,13 +1,10 @@
-;
 ;  Copyright (c) 2010 The WebM project authors. All Rights Reserved.
 ;
 ;  Use of this source code is governed by a BSD-style license
 ;  that can be found in the LICENSE file in the root of the source
 ;  tree. An additional intellectual property rights grant can be found
-;  in the file PATENTS.  All contributing project authors may
+;  in the file PATENTS. All contributing project authors may
 ;  be found in the AUTHORS file in the root of the source tree.
-;
-
 
     .globl vp8_sad16x16_ppc
     .globl vp8_sad16x8_ppc
@@ -16,7 +13,7 @@
     .globl vp8_sad4x4_ppc
 
 .macro load_aligned_16 V R O
-    lvsl    v3,  0, \R          ;# permutate value for alignment
+    lvsl    v3,  0, \R          ; permutate value for alignment
 
     lvx     v1,  0, \R
     lvx     v2, \O, \R
@@ -25,37 +22,37 @@
 .endm
 
 .macro prologue
-    mfspr   r11, 256            ;# get old VRSAVE
+    mfspr   r11, 256            ; get old VRSAVE
     oris    r12, r11, 0xffc0
-    mtspr   256, r12            ;# set VRSAVE
+    mtspr   256, r12            ; set VRSAVE
 
-    stwu    r1, -32(r1)         ;# create space on the stack
+    stwu    r1, -32(r1)         ; create space on the stack
 
-    li      r10, 16             ;# load offset and loop counter
+    li      r10, 16             ; load offset and loop counter
 
-    vspltisw v8, 0              ;# zero out total to start
+    vspltisw v8, 0              ; zero out total to start
 .endm
 
 .macro epilogue
-    addi    r1, r1, 32          ;# recover stack
+    addi    r1, r1, 32          ; recover stack
 
-    mtspr   256, r11            ;# reset old VRSAVE
+    mtspr   256, r11            ; reset old VRSAVE
 .endm
 
 .macro SAD_16
-    ;# v6 = abs (v4 - v5)
+    ; v6 = abs (v4–v5)
     vsububs v6, v4, v5
     vsububs v7, v5, v4
     vor     v6, v6, v7
 
-    ;# v8 += abs (v4 - v5)
+    ; v8 += abs (v4–v5)
     vsum4ubs v8, v6, v8
 .endm
 
 .macro sad_16_loop loop_label
-    lvsl    v3,  0, r5          ;# only needs to be done once per block
+    lvsl    v3,  0, r5          ; only needs to be done once per block
 
-    ;# preload a line of data before getting into the loop
+    ; preload a line of data before getting into the loop
     lvx     v4, 0, r3
     lvx     v1,  0, r5
     lvx     v2, r10, r5
@@ -67,28 +64,28 @@
 
     .align 4
 \loop_label:
-    ;# compute difference on first row
+    ; compute difference on first row
     vsububs v6, v4, v5
     vsububs v7, v5, v4
 
-    ;# load up next set of data
+    ; load up next set of data
     lvx     v9, 0, r3
     lvx     v1,  0, r5
     lvx     v2, r10, r5
 
-    ;# perform abs() of difference
+    ; perform abs() of difference
     vor     v6, v6, v7
     add     r3, r3, r4
 
-    ;# add to the running tally
+    ; add to the running tally
     vsum4ubs v8, v6, v8
 
-    ;# now onto the next line
+    ; now onto the next line
     vperm   v5, v1, v2, v3
     add     r5, r5, r6
     lvx     v4, 0, r3
 
-    ;# compute difference on second row
+    ; compute difference on second row
     vsububs v6, v9, v5
     lvx     v1,  0, r5
     vsububs v7, v5, v9
@@ -112,19 +109,19 @@
 .macro sad_8_loop loop_label
     .align 4
 \loop_label:
-    ;# only one of the inputs should need to be aligned.
+    ; only one of the inputs should need to be aligned.
     load_aligned_16 v4, r3, r10
     load_aligned_16 v5, r5, r10
 
-    ;# move onto the next line
+    ; move onto the next line
     add     r3, r3, r4
     add     r5, r5, r6
 
-    ;# only one of the inputs should need to be aligned.
+    ; only one of the inputs should need to be aligned.
     load_aligned_16 v6, r3, r10
     load_aligned_16 v7, r5, r10
 
-    ;# move onto the next line
+    ; move onto the next line
     add     r3, r3, r4
     add     r5, r5, r6
 
@@ -144,12 +141,12 @@
 .endm
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  src_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  ref_stride
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  src_stride
+; r5 unsigned char *ref_ptr
+; r6 int  ref_stride
+
+; r3 return value
 vp8_sad16x16_ppc:
 
     prologue
@@ -164,12 +161,12 @@ vp8_sad16x16_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  src_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  ref_stride
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  src_stride
+; r5 unsigned char *ref_ptr
+; r6 int  ref_stride
+
+; r3 return value
 vp8_sad16x8_ppc:
 
     prologue
@@ -184,12 +181,12 @@ vp8_sad16x8_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  src_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  ref_stride
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  src_stride
+; r5 unsigned char *ref_ptr
+; r6 int  ref_stride
+
+; r3 return value
 vp8_sad8x16_ppc:
 
     prologue
@@ -204,12 +201,12 @@ vp8_sad8x16_ppc:
     blr
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  src_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  ref_stride
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  src_stride
+; r5 unsigned char *ref_ptr
+; r6 int  ref_stride
+
+; r3 return value
 vp8_sad8x8_ppc:
 
     prologue
@@ -242,12 +239,12 @@ vp8_sad8x8_ppc:
 .endm
 
     .align 2
-;# r3 unsigned char *src_ptr
-;# r4 int  src_stride
-;# r5 unsigned char *ref_ptr
-;# r6 int  ref_stride
-;#
-;# r3 return value
+; r3 unsigned char *src_ptr
+; r4 int  src_stride
+; r5 unsigned char *ref_ptr
+; r6 int  ref_stride
+
+; r3 return value
 vp8_sad4x4_ppc:
 
     prologue
@@ -258,14 +255,14 @@ vp8_sad4x4_ppc:
     transfer_4x4 r5, r6
     lvx     v5, 0, r1
 
-    vspltisw v8, 0              ;# zero out total to start
+    vspltisw v8, 0              ; zero out total to start
 
-    ;# v6 = abs (v4 - v5)
+    ; v6 = abs (v4–v5)
     vsububs v6, v4, v5
     vsububs v7, v5, v4
     vor     v6, v6, v7
 
-    ;# v8 += abs (v4 - v5)
+    ; v8 += abs (v4–v5)
     vsum4ubs v7, v6, v8
     vsumsws v7, v7, v8
 
