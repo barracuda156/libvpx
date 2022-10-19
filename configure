@@ -118,6 +118,12 @@ all_platforms="${all_platforms} loongarch32-linux-gcc"
 all_platforms="${all_platforms} loongarch64-linux-gcc"
 all_platforms="${all_platforms} mips32-linux-gcc"
 all_platforms="${all_platforms} mips64-linux-gcc"
+all_platforms="${all_platforms} ppc32-darwin8-gcc"
+all_platforms="${all_platforms} ppc32-darwin9-gcc"
+all_platforms="${all_platforms} ppc32-darwin10-gcc"
+all_platforms="${all_platforms} ppc32-linux-gcc"
+all_platforms="${all_platforms} ppc64-darwin9-gcc"
+all_platforms="${all_platforms} ppc64-linux-gcc"
 all_platforms="${all_platforms} ppc64le-linux-gcc"
 all_platforms="${all_platforms} sparc-solaris-gcc"
 all_platforms="${all_platforms} x86-android-gcc"
@@ -240,7 +246,9 @@ ARCH_LIST="
     mips
     x86
     x86_64
-    ppc
+    ppc32
+    ppc64
+    ppc64le
     loongarch
 "
 ARCH_EXT_LIST_X86="
@@ -269,6 +277,8 @@ ARCH_EXT_LIST="
     dspr2
     msa
     mips64
+    
+    altivec
 
     ${ARCH_EXT_LIST_X86}
 
@@ -622,6 +632,29 @@ EOF
 
 process_toolchain() {
     process_common_toolchain
+
+    # Handle universal binaries for this architecture
+    case $toolchain in
+        universal-darwin*)
+            darwin_ver=${tgt_os##darwin}
+
+            # Lion (10.7/darwin11) dropped support for PPC
+            # Include PPC support for all prior versions
+            if [ $darwin_ver -lt 11 ]; then
+                fat_bin_archs="$fat_bin_archs ppc32-${tgt_os}-gcc"
+            fi
+
+            # Tiger (10.4/darwin8) brought support for x86
+            if [ $darwin_ver -ge 8 ]; then
+                fat_bin_archs="$fat_bin_archs x86-${tgt_os}-${tgt_cc}"
+            fi
+
+            # Leopard (10.5/darwin9) brought 64 bit support
+            if [ $darwin_ver -ge 9 ]; then
+                fat_bin_archs="$fat_bin_archs x86_64-${tgt_os}-${tgt_cc}"
+            fi
+            ;;
+    esac
 
     # Enable some useful compiler flags
     if enabled gcc; then

@@ -771,6 +771,12 @@ process_common_toolchain() {
       power*64le*-*)
         tgt_isa=ppc64le
         ;;
+      *powerpc64*)
+        tgt_isa=ppc64
+        ;;
+      *powerpc*)
+        tgt_isa=ppc32
+        ;;
       *mips64el*)
         tgt_isa=mips64
         ;;
@@ -787,9 +793,21 @@ process_common_toolchain() {
 
     # detect tgt_os
     case "$gcctarget" in
-      *darwin1[0-9]*)
+      *darwin8*)
+        tgt_isa=universal
+        tgt_os=darwin8
+        ;;
+      *darwin9*)
+        tgt_isa=universal
+        tgt_os=darwin9
+        ;;
+      *darwin10*)
+        tgt_isa=universal
+        tgt_os=darwin10
+        ;;
+      *darwin1[1-9]*)
         tgt_isa=x86_64
-        tgt_os=`echo $gcctarget | sed 's/.*\(darwin1[0-9]\).*/\1/'`
+        tgt_os=`echo $gcctarget | sed 's/.*\(darwin1[1-9]\).*/\1/'`
         ;;
       *darwin2[0-1]*)
         tgt_isa=`uname -m`
@@ -1266,6 +1284,28 @@ EOF
             ;;
         esac
       fi
+      ;;
+    ppc*)
+      bits=${tgt_isa##ppc}
+      link_with_cc=gcc
+      setup_gnu_toolchain
+      add_asflags -force_cpusubtype_ALL -I"\$(dir \$<)darwin"
+      soft_enable altivec
+      enabled altivec && add_cflags -maltivec
+
+      case "$tgt_os" in
+        linux*)
+          add_asflags -maltivec -mregnames -I"\$(dir \$<)linux"
+          ;;
+        darwin*)
+          darwin_arch="-arch ppc"
+          enabled ppc64 && darwin_arch="${darwin_arch}64"
+          add_cflags  ${darwin_arch} -m${bits} -fasm-blocks
+          add_asflags ${darwin_arch} -force_cpusubtype_ALL -I"\$(dir \$<)darwin"
+          add_ldflags ${darwin_arch} -m${bits}
+          enabled altivec && add_cflags -faltivec
+          ;;
+      esac
       ;;
     x86*)
       case  ${tgt_os} in
