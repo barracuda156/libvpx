@@ -58,6 +58,8 @@ extern "C" {
 #define vpx_atomic_memory_barrier() __asm__ __volatile__("dmb ish" ::: "memory")
 #elif VPX_ARCH_MIPS
 #define vpx_atomic_memory_barrier() __asm__ __volatile__("sync" ::: "memory")
+#elif VPX_ARCH_PPC32 || VPX_ARCH_PPC64
+#define vpx_atomic_memory_barrier() __asm__ volatile("sync" ::: "memory")
 #else
 #error Unsupported architecture!
 #endif  // VPX_ARCH_X86 || VPX_ARCH_X86_64
