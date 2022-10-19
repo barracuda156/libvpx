@@ -14,7 +14,7 @@
 #include "vpx_ports/arm.h"
 #elif VPX_ARCH_X86 || VPX_ARCH_X86_64
 #include "vpx_ports/x86.h"
-#elif VPX_ARCH_PPC
+#elif VPX_ARCH_PPC64LE // Darwin PPC not yet implemented
 #include "vpx_ports/ppc.h"
 #elif VPX_ARCH_MIPS
 #include "vpx_ports/mips.h"
@@ -98,7 +98,7 @@ void vp8_machine_specific_config(VP8_COMMON *ctx) {
   ctx->cpu_caps = arm_cpu_caps();
 #elif VPX_ARCH_X86 || VPX_ARCH_X86_64
   ctx->cpu_caps = x86_simd_caps();
-#elif VPX_ARCH_PPC
+#elif VPX_ARCH_PPC64LE // Darwin PPC not yet implemented
   ctx->cpu_caps = ppc_simd_caps();
 #elif VPX_ARCH_MIPS
   ctx->cpu_caps = mips_cpu_caps();

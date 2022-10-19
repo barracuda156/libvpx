@@ -124,6 +124,13 @@ ifeq ($(CONFIG_REALTIME_ONLY),yes)
 VP8_CX_SRCS_REMOVE-$(HAVE_MSA) += encoder/mips/msa/temporal_filter_msa.c
 endif
 
+ifeq ($(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64),yes)
+VP8_CX_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += encoder/ppc/csystemdependent.c
+VP8_CX_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += encoder/ppc/encodemb_altivec.asm
+VP8_CX_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += encoder/ppc/fdct_altivec.asm
+VP8_CX_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += encoder/ppc/rdopt_altivec.asm
+endif
+
 # common (loongarch LSX intrinsics)
 VP8_CX_SRCS-$(HAVE_LSX) += encoder/loongarch/dct_lsx.c
 VP8_CX_SRCS-$(HAVE_LSX) += encoder/loongarch/encodeopt_lsx.c

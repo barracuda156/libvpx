@@ -124,6 +124,21 @@ ifeq ($(CONFIG_POSTPROC),yes)
 VP8_COMMON_SRCS-$(HAVE_MSA) += common/mips/msa/mfqe_msa.c
 endif
 
+ifeq ($(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64),yes)
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/copy_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/filter_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/filter_bilinear_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/idctllm_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/loopfilter_altivec.c
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/loopfilter_filters_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/platform_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/recon_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/sad_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/systemdependent.c
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/variance_altivec.asm
+VP8_COMMON_SRCS-$(VPX_ARCH_PPC32)$(VPX_ARCH_PPC64) += common/ppc/variance_subpixel_altivec.asm
+endif
+
 # common (loongarch LSX intrinsics)
 VP8_COMMON_SRCS-$(HAVE_LSX) += common/loongarch/loopfilter_filters_lsx.c
 VP8_COMMON_SRCS-$(HAVE_LSX) += common/loongarch/sixtap_filter_lsx.c
