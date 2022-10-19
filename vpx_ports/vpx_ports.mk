@@ -38,9 +38,9 @@ endif
 
 PORTS_SRCS-$(VPX_ARCH_ARM) += arm_cpudetect.c
 PORTS_SRCS-$(VPX_ARCH_ARM) += arm.h
-
-PORTS_SRCS-$(VPX_ARCH_PPC) += ppc_cpudetect.c
-PORTS_SRCS-$(VPX_ARCH_PPC) += ppc.h
+# Darwin PPC is not implemented yet.
+PORTS_SRCS-$(VPX_ARCH_PPC64LE) += ppc_cpudetect.c
+PORTS_SRCS-$(VPX_ARCH_PPC64LE) += ppc.h
 
 PORTS_SRCS-$(VPX_ARCH_MIPS) += mips_cpudetect.c
 PORTS_SRCS-$(VPX_ARCH_MIPS) += mips.h
