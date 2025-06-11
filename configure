@@ -111,6 +111,13 @@ all_platforms="${all_platforms} armv7-win32-vs14"
 all_platforms="${all_platforms} armv7s-darwin-gcc"
 all_platforms="${all_platforms} mips32-linux-gcc"
 all_platforms="${all_platforms} mips64-linux-gcc"
+all_platforms="${all_platforms} ppc32-darwin8-gcc"
+all_platforms="${all_platforms} ppc32-darwin9-gcc"
+all_platforms="${all_platforms} ppc32-darwin10-gcc"
+all_platforms="${all_platforms} ppc32-linux-gcc"
+all_platforms="${all_platforms} ppc64-darwin8-gcc"
+all_platforms="${all_platforms} ppc64-darwin9-gcc"
+all_platforms="${all_platforms} ppc64-linux-gcc"
 all_platforms="${all_platforms} sparc-solaris-gcc"
 all_platforms="${all_platforms} x86-android-gcc"
 all_platforms="${all_platforms} x86-darwin8-gcc"
@@ -231,6 +238,8 @@ ARCH_LIST="
     mips
     x86
     x86_64
+    ppc32
+    ppc64
 "
 ARCH_EXT_LIST="
     edsp
@@ -251,6 +260,8 @@ ARCH_EXT_LIST="
     sse4_1
     avx
     avx2
+
+    altivec
 "
 HAVE_LIST="
     ${ARCH_EXT_LIST}
@@ -663,7 +674,7 @@ process_toolchain() {
     esac
 
     # Other toolchain specific defaults
-    case $toolchain in x86*) soft_enable postproc;; esac
+    case $toolchain in x86*|ppc*) soft_enable postproc;; esac
 
     if enabled postproc_visualizer; then
         enabled postproc || die "postproc_visualizer requires postproc to be enabled"
