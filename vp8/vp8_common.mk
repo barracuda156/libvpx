@@ -66,10 +66,22 @@ VP8_COMMON_SRCS-yes += common/setupintrarecon.c
 VP8_COMMON_SRCS-yes += common/swapyv12buffer.c
 VP8_COMMON_SRCS-yes += common/vp8_entropymodedata.h
 
-
-
 VP8_COMMON_SRCS-$(CONFIG_POSTPROC_VISUALIZER) += common/textblit.c
 VP8_COMMON_SRCS-yes += common/treecoder.c
+
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/copy_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/filter_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/filter_bilinear_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/idctllm_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/loopfilter_altivec.c
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/loopfilter_filters_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/platform_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/recon_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/sad_altivec.asm
+# VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/systemdependent.c
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/variance_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/variance_subpixel_altivec.asm
+VP8_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/vp8_intrinsics_vmx.c
 
 VP8_COMMON_SRCS-$(ARCH_X86)$(ARCH_X86_64) += common/x86/filter_x86.c
 VP8_COMMON_SRCS-$(ARCH_X86)$(ARCH_X86_64) += common/x86/filter_x86.h

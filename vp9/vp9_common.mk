@@ -65,6 +65,11 @@ VP9_COMMON_SRCS-$(CONFIG_VP9_POSTPROC) += common/vp9_postproc.h
 VP9_COMMON_SRCS-$(CONFIG_VP9_POSTPROC) += common/vp9_postproc.c
 VP9_COMMON_SRCS-$(CONFIG_VP9_POSTPROC) += common/vp9_mfqe.h
 VP9_COMMON_SRCS-$(CONFIG_VP9_POSTPROC) += common/vp9_mfqe.c
+
+VP9_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/vp9_convolve_vmx.c
+VP9_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/vp9_idct_intrin_vmx.c
+VP9_COMMON_SRCS-$(ARCH_PPC32)$(ARCH_PPC64) += common/ppc/vp9_intrapred_vmx.c
+
 ifeq ($(CONFIG_VP9_POSTPROC),yes)
 VP9_COMMON_SRCS-$(HAVE_SSE2) += common/x86/vp9_mfqe_sse2.asm
 VP9_COMMON_SRCS-$(HAVE_SSE2) += common/x86/vp9_postproc_sse2.asm
