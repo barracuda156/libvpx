@@ -55,6 +55,7 @@ struct vpx_codec_alg_priv {
   int                     invert_tile_order;
   int                     last_show_frame;  // Index of last output frame.
   int                     byte_alignment;
+  int                     skip_loop_filter;
 
   // Frame parallel related.
   int                     frame_parallel_decode;  // frame-based threading.
@@ -285,6 +286,7 @@ static void init_buffer_callbacks(vpx_codec_alg_priv_t *ctx) {
 
     cm->new_fb_idx = INVALID_IDX;
     cm->byte_alignment = ctx->byte_alignment;
+    cm->skip_loop_filter = ctx->skip_loop_filter;
 
     if (ctx->get_ext_fb_cb != NULL && ctx->release_ext_fb_cb != NULL) {
       pool->get_fb_cb = ctx->get_ext_fb_cb;
@@ -367,6 +369,7 @@ static vpx_codec_err_t init_decoder(vpx_codec_alg_priv_t *ctx) {
   ctx->frame_cache_write = 0;
   ctx->num_cache_frames = 0;
   ctx->need_resync = 1;
+  ctx->skip_loop_filter = 1; // It just isn't necessary.
   ctx->num_frame_workers =
       (ctx->frame_parallel_decode == 1) ? ctx->cfg.threads: 1;
   if (ctx->num_frame_workers > MAX_DECODE_THREADS)
@@ -462,7 +465,6 @@ static INLINE void check_resync(vpx_codec_alg_priv_t *const ctx,
 static vpx_codec_err_t decode_one(vpx_codec_alg_priv_t *ctx,
                                   const uint8_t **data, unsigned int data_sz,
                                   void *user_priv, int64_t deadline) {
-  vp9_ppflags_t flags = {0, 0, 0};
   const VP9WorkerInterface *const winterface = vp9_get_worker_interface();
   (void)deadline;
 
@@ -528,7 +530,7 @@ static vpx_codec_err_t decode_one(vpx_codec_alg_priv_t *ctx,
       frame_worker_data->scratch_buffer_size = data_sz;
     }
     frame_worker_data->data_size = data_sz;
-    vpx_memcpy(frame_worker_data->scratch_buffer, *data, data_sz);
+    memcpy(frame_worker_data->scratch_buffer, *data, data_sz);
 
     frame_worker_data->frame_decoded = 0;
     frame_worker_data->frame_context_ready = 0;
@@ -546,9 +548,6 @@ static vpx_codec_err_t decode_one(vpx_codec_alg_priv_t *ctx,
     worker->had_error = 0;
     winterface->launch(worker);
   }
-
-  if (ctx->base.init_flags & VPX_CODEC_USE_POSTPROC)
-    set_ppflags(ctx, &flags);
 
   return VPX_CODEC_OK;
 }
@@ -941,7 +940,8 @@ static vpx_codec_err_t ctrl_get_frame_corrupted(vpx_codec_alg_priv_t *ctx,
           frame_worker_data->pbi->common.buffer_pool->frame_bufs;
       if (frame_worker_data->pbi->common.frame_to_show == NULL)
         return VPX_CODEC_ERROR;
-      *corrupted = frame_bufs[ctx->last_show_frame].buf.corrupted;
+      if (ctx->last_show_frame >= 0)
+        *corrupted = frame_bufs[ctx->last_show_frame].buf.corrupted;
       return VPX_CODEC_OK;
     } else {
       return VPX_CODEC_ERROR;
@@ -1062,6 +1062,19 @@ static vpx_codec_err_t ctrl_set_byte_alignment(vpx_codec_alg_priv_t *ctx,
   return VPX_CODEC_OK;
 }
 
+static vpx_codec_err_t ctrl_set_skip_loop_filter(vpx_codec_alg_priv_t *ctx,
+                                                 va_list args) {
+  ctx->skip_loop_filter = va_arg(args, int);
+
+  if (ctx->frame_workers) {
+    VP9Worker *const worker = ctx->frame_workers;
+    FrameWorkerData *const frame_worker_data = (FrameWorkerData *)worker->data1;
+    frame_worker_data->pbi->common.skip_loop_filter = ctx->skip_loop_filter;
+  }
+
+  return VPX_CODEC_OK;
+}
+
 static vpx_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   {VP8_COPY_REFERENCE,            ctrl_copy_reference},
 
@@ -1075,6 +1088,7 @@ static vpx_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   {VP9_INVERT_TILE_DECODE_ORDER,  ctrl_set_invert_tile_order},
   {VPXD_SET_DECRYPTOR,            ctrl_set_decryptor},
   {VP9_SET_BYTE_ALIGNMENT,        ctrl_set_byte_alignment},
+  {VP9_SET_SKIP_LOOP_FILTER,      ctrl_set_skip_loop_filter},
 
   // Getters
   {VP8D_GET_LAST_REF_UPDATES,     ctrl_get_last_ref_updates},

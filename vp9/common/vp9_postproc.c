@@ -16,12 +16,10 @@
 #include "./vpx_scale_rtcd.h"
 #include "./vp9_rtcd.h"
 
+#include "vpx_ports/mem.h"
 #include "vpx_scale/vpx_scale.h"
 #include "vpx_scale/yv12config.h"
 
-#if CONFIG_VP9_HIGHBITDEPTH
-#include "vp9/common/vp9_common.h"
-#endif
 #include "vp9/common/vp9_onyxc_int.h"
 #include "vp9/common/vp9_postproc.h"
 #include "vp9/common/vp9_systemdependent.h"
@@ -651,8 +649,8 @@ int vp9_post_proc_frame(struct VP9Common *cm,
       return 1;
     }
     ppstate->prev_mi = ppstate->prev_mip + cm->mi_stride + 1;
-    vpx_memset(ppstate->prev_mip, 0,
-               cm->mi_stride * (cm->mi_rows + 1) * sizeof(*cm->mip));
+    memset(ppstate->prev_mip, 0,
+           cm->mi_stride * (cm->mi_rows + 1) * sizeof(*cm->mip));
   }
 
   // Allocate post_proc_buffer_int if needed.
@@ -674,8 +672,8 @@ int vp9_post_proc_frame(struct VP9Common *cm,
 
       // Ensure that postproc is set to all 0s so that post proc
       // doesn't pull random data in from edge.
-      vpx_memset(cm->post_proc_buffer_int.buffer_alloc, 128,
-                 cm->post_proc_buffer.frame_size);
+      memset(cm->post_proc_buffer_int.buffer_alloc, 128,
+             cm->post_proc_buffer.frame_size);
     }
   }
 

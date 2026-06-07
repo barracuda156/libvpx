@@ -15,6 +15,7 @@
 #include "./vp9_rtcd.h"
 
 #include "vpx_mem/vpx_mem.h"
+#include "vpx_ports/mem.h"
 
 #include "vp9/common/vp9_common.h"
 #include "vp9/common/vp9_entropy.h"
@@ -128,7 +129,7 @@ static void init_me_luts_bd(int *bit16lut, int *bit4lut, int range,
   }
 }
 
-void vp9_init_me_luts() {
+void vp9_init_me_luts(void) {
   init_me_luts_bd(sad_per_bit16lut_8, sad_per_bit4lut_8, QINDEX_RANGE,
                   VPX_BITS_8);
 #if CONFIG_VP9_HIGHBITDEPTH
@@ -419,8 +420,8 @@ void vp9_get_entropy_contexts(BLOCK_SIZE bsize, TX_SIZE tx_size,
   int i;
   switch (tx_size) {
     case TX_4X4:
-      vpx_memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
-      vpx_memcpy(t_left, left, sizeof(ENTROPY_CONTEXT) * num_4x4_h);
+      memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
+      memcpy(t_left, left, sizeof(ENTROPY_CONTEXT) * num_4x4_h);
       break;
     case TX_8X8:
       for (i = 0; i < num_4x4_w; i += 2)
@@ -450,7 +451,7 @@ void vp9_mv_pred(VP9_COMP *cpi, MACROBLOCK *x,
                  uint8_t *ref_y_buffer, int ref_y_stride,
                  int ref_frame, BLOCK_SIZE block_size) {
   MACROBLOCKD *xd = &x->e_mbd;
-  MB_MODE_INFO *mbmi = &xd->mi[0].src_mi->mbmi;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int i;
   int zero_seen = 0;
   int best_index = 0;
@@ -550,7 +551,7 @@ YV12_BUFFER_CONFIG *vp9_get_scaled_ref_frame(const VP9_COMP *cpi,
 }
 
 int vp9_get_switchable_rate(const VP9_COMP *cpi, const MACROBLOCKD *const xd) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0].src_mi->mbmi;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int ctx = vp9_get_pred_context_switchable_interp(xd);
   return SWITCHABLE_INTERP_RATE_FACTOR *
              cpi->switchable_interp_costs[ctx][mbmi->interp_filter];
@@ -616,8 +617,7 @@ void vp9_set_rd_speed_thresholds_sub8x8(VP9_COMP *cpi) {
        {2000, 2000, 2000, 4000, 4000, 2000}};
   RD_OPT *const rd = &cpi->rd;
   const int idx = cpi->oxcf.mode == BEST;
-  vpx_memcpy(rd->thresh_mult_sub8x8, thresh_mult[idx],
-             sizeof(thresh_mult[idx]));
+  memcpy(rd->thresh_mult_sub8x8, thresh_mult[idx], sizeof(thresh_mult[idx]));
 }
 
 void vp9_update_rd_thresh_fact(int (*factor_buf)[MAX_MODES], int rd_thresh,

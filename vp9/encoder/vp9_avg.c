@@ -7,6 +7,7 @@
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+#include "./vp9_rtcd.h"
 #include "vp9/common/vp9_common.h"
 #include "vpx_ports/mem.h"
 
@@ -155,6 +156,20 @@ int vp9_vector_var_c(int16_t const *ref, int16_t const *src,
   return var;
 }
 
+void vp9_minmax_8x8_c(const uint8_t *s, int p, const uint8_t *d, int dp,
+                      int *min, int *max) {
+  int i, j;
+  *min = 255;
+  *max = 0;
+  for (i = 0; i < 8; ++i, s += p, d += dp) {
+    for (j = 0; j < 8; ++j) {
+      int diff = abs(s[j]-d[j]);
+      *min = diff < *min ? diff : *min;
+      *max = diff > *max ? diff : *max;
+    }
+  }
+}
+
 #if CONFIG_VP9_HIGHBITDEPTH
 unsigned int vp9_highbd_avg_8x8_c(const uint8_t *s8, int p) {
   int i, j;
@@ -174,6 +189,22 @@ unsigned int vp9_highbd_avg_4x4_c(const uint8_t *s8, int p) {
     for (j = 0; j < 4; sum += s[j], ++j) {}
 
   return (sum + 8) >> 4;
+}
+
+void vp9_highbd_minmax_8x8_c(const uint8_t *s8, int p, const uint8_t *d8,
+                             int dp, int *min, int *max) {
+  int i, j;
+  const uint16_t* s = CONVERT_TO_SHORTPTR(s8);
+  const uint16_t* d = CONVERT_TO_SHORTPTR(d8);
+  *min = 255;
+  *max = 0;
+  for (i = 0; i < 8; ++i, s += p, d += dp) {
+    for (j = 0; j < 8; ++j) {
+      int diff = abs(s[j]-d[j]);
+      *min = diff < *min ? diff : *min;
+      *max = diff > *max ? diff : *max;
+    }
+  }
 }
 #endif  // CONFIG_VP9_HIGHBITDEPTH
 

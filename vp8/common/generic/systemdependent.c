@@ -17,6 +17,7 @@
 #include "vpx_ports/x86.h"
 #endif
 #include "vp8/common/onyxc_int.h"
+#include "vp8/common/systemdependent.h"
 
 #if CONFIG_MULTITHREAD
 #if HAVE_UNISTD_H && !defined(__OS2__)
@@ -34,6 +35,7 @@ typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
 #if CONFIG_MULTITHREAD
 static int get_cpu_count()
 {
+#if(0)
     int core_count = 16;
 
 #if HAVE_UNISTD_H && !defined(__OS2__)
@@ -79,6 +81,13 @@ static int get_cpu_count()
 #endif
 
     return core_count > 0 ? core_count : 1;
+#else
+#ifdef _PPC970_
+	return 2; // G5s all have at least this many
+#else
+	return 1;
+#endif
+#endif
 }
 #endif
 

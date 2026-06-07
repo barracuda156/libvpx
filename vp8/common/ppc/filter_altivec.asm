@@ -138,10 +138,13 @@
     luma_v v15, v10, v11, v12, v13, v14
 .endm
 
+/*
+Our macro interpreter can't handle this one, for some reason.
 .macro Interp4 R I I4
     vmsummbm \R, v13, \I, v15
     vmsummbm \R, v14, \I4, \R
 .endm
+*/
 
 .macro Read8x8 VD, RS, RP, increment_counter
     lvsl    v21,  0, \RS        ;# permutate value for alignment
@@ -161,9 +164,18 @@
 .macro interp_8x8 R
     vperm   v20, \R, \R, v16    ;# v20 = 0123 1234 2345 3456
     vperm   v21, \R, \R, v17    ;# v21 = 4567 5678 6789 789A
+/*
     Interp4 v20, v20,  v21      ;# v20 = result 0 1 2 3
+*/
+    vmsummbm v20, v13, v20, v15
+    vmsummbm v20, v14, v21, v20
+
     vperm   \R, \R, \R, v18     ;# R   = 89AB 9ABC ABCx BCxx
+/*
     Interp4 v21, v21, \R        ;# v21 = result 4 5 6 7
+*/
+    vmsummbm v21, v13, v21, v15
+    vmsummbm v21, v14, \R, v21
 
     vpkswus \R, v20, v21        ;#  R = 0 1 2 3 4 5 6 7
     vsrh    \R, \R, v19

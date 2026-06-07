@@ -24,6 +24,8 @@
 #define VPX_INLINE inline
 #endif
 
+#if !defined(VPX_DONT_DEFINE_STDINT_TYPES)
+
 #if (defined(_MSC_VER) && (_MSC_VER < 1600)) || defined(VPX_EMULATE_INTTYPES)
 typedef signed char  int8_t;
 typedef signed short int16_t;
@@ -63,6 +65,8 @@ typedef size_t uintptr_t;
 #include <stdint.h>
 
 #endif
+
+#endif // VPX_DONT_DEFINE_STDINT_TYPES
 
 /* VS2010 defines stdint.h, but not inttypes.h */
 #if defined(_MSC_VER) && _MSC_VER < 1800
